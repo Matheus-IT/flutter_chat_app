@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-final _firabase = FirebaseAuth.instance;
-
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -27,13 +25,13 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       if (_isLogin) {
-        final userCredentials = await _firabase.signInWithEmailAndPassword(
+        final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
         print('\nlogin $userCredentials');
       } else {
-        final userCredentials = await _firabase.createUserWithEmailAndPassword(
+        final userCredentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
@@ -87,9 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty ||
-                                  !value.contains('@')) {
+                              if (value == null || value.trim().isEmpty || !value.contains('@')) {
                                 return 'Please enter a valid email address';
                               }
                               return null;
@@ -119,9 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ElevatedButton(
                             onPressed: () => _submit(),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
+                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                             ),
                             child: Text(_isLogin ? 'Login' : 'Signup'),
                           ),
@@ -132,9 +126,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               });
                             },
                             child: Text(
-                              _isLogin
-                                  ? 'Create account'
-                                  : 'I already have an account',
+                              _isLogin ? 'Create account' : 'I already have an account',
                             ),
                           ),
                         ],
