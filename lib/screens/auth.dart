@@ -25,27 +25,27 @@ class _AuthScreenState extends State<AuthScreen> {
 
     _formKey.currentState!.save();
 
-    if (_isLogin) {
-      final userCredentials = await _firabase.signInWithEmailAndPassword(
-        email: _enteredEmail,
-        password: _enteredPassword,
-      );
-      print('\nlogin $userCredentials');
-    } else {
-      try {
+    try {
+      if (_isLogin) {
+        final userCredentials = await _firabase.signInWithEmailAndPassword(
+          email: _enteredEmail,
+          password: _enteredPassword,
+        );
+        print('\nlogin $userCredentials');
+      } else {
         final userCredentials = await _firabase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
         print('\nsignup $userCredentials');
-      } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message ?? 'Authentication failed'),
-          ),
-        );
       }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'Authentication failed'),
+        ),
+      );
     }
   }
 
