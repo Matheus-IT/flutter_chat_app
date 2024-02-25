@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_app/widgets/user_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,18 +18,30 @@ class _AuthScreenState extends State<AuthScreen> {
   String _enteredEmail = '';
   String _enteredPassword = '';
   File? _selectedImage;
+  bool _isLoadingAuthentication = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
 
-    if (!isValid || (!_isLogin && _selectedImage == null)) {
-      // TODO: show error message...
+    if (!isValid) {
+      return;
+    }
+
+    if (!_isLogin && _selectedImage == null) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image is required to signup'),
+        ),
+      );
       return;
     }
 
     _formKey.currentState!.save();
 
     try {
+      setState(() => _isLoadingAuthentication = true);
+
       if (_isLogin) {
         final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _enteredEmail,
@@ -41,6 +54,12 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
         print('\nsignup $userCredentials');
+
+        final storageRef =
+            FirebaseStorage.instance.ref().child('user_images').child('${userCredentials.user!.uid}.jpg');
+        await storageRef.putFile(_selectedImage!);
+        final imageUrl = await storageRef.getDownloadURL();
+        print('\nimage url $imageUrl');
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -49,6 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
           content: Text(e.message ?? 'Authentication failed'),
         ),
       );
+      setState(() => _isLoadingAuthentication = false);
     }
   }
 
@@ -120,26 +140,27 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredPassword = newValue!;
                             },
                           ),
-                          const SizedBox(
-                            height: 12,
-                          ),
-                          ElevatedButton(
-                            onPressed: () => _submit(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          const SizedBox(height: 12),
+                          if (_isLoadingAuthentication) const CircularProgressIndicator(),
+                          if (!_isLoadingAuthentication)
+                            ElevatedButton(
+                              onPressed: () => _submit(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                              ),
+                              child: Text(_isLogin ? 'Login' : 'Signup'),
                             ),
-                            child: Text(_isLogin ? 'Login' : 'Signup'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _isLogin = !_isLogin;
-                              });
-                            },
-                            child: Text(
-                              _isLogin ? 'Create account' : 'I already have an account',
+                          if (!_isLoadingAuthentication)
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isLogin = !_isLogin;
+                                });
+                              },
+                              child: Text(
+                                _isLogin ? 'Create account' : 'I already have an account',
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
