@@ -20,6 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
   String _enteredPassword = '';
   File? _selectedImage;
   bool _isLoadingAuthentication = false;
+  String _enteredUsername = '';
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -62,7 +63,7 @@ class _AuthScreenState extends State<AuthScreen> {
         final imageUrl = await storageRef.getDownloadURL();
         print('\nimage url $imageUrl');
         await FirebaseFirestore.instance.collection('users').doc(userCredentials.user!.uid).set({
-          'username': 'to be done...',
+          'username': _enteredUsername,
           'email': _enteredEmail,
           'image_url': imageUrl,
         });
@@ -132,20 +133,34 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                            ),
-                            obscureText: true,
+                            decoration: const InputDecoration(labelText: 'Username'),
+                            enableSuggestions: false,
                             validator: (value) {
-                              if (value == null || value.trim().length < 6) {
-                                return 'Password must be at least 6 characters long';
+                              if (value == null || value.isEmpty || value.trim().length < 4) {
+                                return 'Please enter at least 4 characters';
                               }
                               return null;
                             },
                             onSaved: (newValue) {
-                              _enteredPassword = newValue!;
+                              _enteredUsername = newValue!;
                             },
                           ),
+                          if (!_isLogin)
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Password',
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                if (value == null || value.trim().length < 6) {
+                                  return 'Password must be at least 6 characters long';
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) {
+                                _enteredPassword = newValue!;
+                              },
+                            ),
                           const SizedBox(height: 12),
                           if (_isLoadingAuthentication) const CircularProgressIndicator(),
                           if (!_isLoadingAuthentication)
