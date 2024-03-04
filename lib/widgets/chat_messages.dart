@@ -7,7 +7,7 @@ class ChatMessages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('chat').orderBy('created_at', descending: false).snapshots(),
+      stream: FirebaseFirestore.instance.collection('chat').orderBy('created_at', descending: true).snapshots(),
       builder: (ctx, chatSnapshots) {
         if (!chatSnapshots.hasData || chatSnapshots.data!.docs.isEmpty) {
           return const Center(
@@ -30,7 +30,21 @@ class ChatMessages extends StatelessWidget {
         final loadedMessages = chatSnapshots.data!.docs;
 
         return ListView.builder(
-          itemBuilder: (ctx, index) => Text(loadedMessages[index].data()['text']),
+          padding: const EdgeInsets.only(
+            bottom: 40,
+            right: 13,
+            left: 13,
+          ),
+          reverse: true,
+          itemBuilder: (ctx, index) {
+            final chatMessage = loadedMessages[index].data();
+            final nextMessage = index + 1 < loadedMessages.length ? loadedMessages[index + 1].data() : null;
+
+            final currentMessageUserId = chatMessage['userId'];
+            final nextMessageUserId = nextMessage != null ? nextMessage['userId'] : null;
+
+            final nextUserIsSame = nextMessageUserId == currentMessageUserId;
+          },
           itemCount: loadedMessages.length,
         );
       },
