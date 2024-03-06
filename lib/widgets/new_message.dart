@@ -19,7 +19,6 @@ class _NewMessageState extends State<NewMessage> {
   }
 
   void _submitMessage() async {
-    _messageController.clear();
     // unfocus any input field, closing the keyboard
     FocusScope.of(context).unfocus();
 
@@ -27,6 +26,8 @@ class _NewMessageState extends State<NewMessage> {
     if (enteredMessage.isEmpty) {
       return;
     }
+
+    _messageController.clear();
 
     final user = FirebaseAuth.instance.currentUser!;
     final userData = (await FirebaseFirestore.instance.collection('users').doc(user.uid).get()).data()!;
