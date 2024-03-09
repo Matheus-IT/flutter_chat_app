@@ -132,35 +132,35 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredEmail = newValue!;
                             },
                           ),
-                          TextFormField(
-                            decoration: const InputDecoration(labelText: 'Username'),
-                            enableSuggestions: false,
-                            validator: (value) {
-                              if (value == null || value.isEmpty || value.trim().length < 4) {
-                                return 'Please enter at least 4 characters';
-                              }
-                              return null;
-                            },
-                            onSaved: (newValue) {
-                              _enteredUsername = newValue!;
-                            },
-                          ),
                           if (!_isLogin)
                             TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
-                              ),
-                              obscureText: true,
+                              decoration: const InputDecoration(labelText: 'Username'),
+                              enableSuggestions: false,
                               validator: (value) {
-                                if (value == null || value.trim().length < 6) {
-                                  return 'Password must be at least 6 characters long';
+                                if (value == null || value.isEmpty || value.trim().length < 4) {
+                                  return 'Please enter at least 4 characters';
                                 }
                                 return null;
                               },
                               onSaved: (newValue) {
-                                _enteredPassword = newValue!;
+                                _enteredUsername = newValue!;
                               },
                             ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                            ),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.trim().length < 6) {
+                                return 'Password must be at least 6 characters long';
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _enteredPassword = newValue!;
+                            },
+                          ),
                           const SizedBox(height: 12),
                           if (_isLoadingAuthentication) const CircularProgressIndicator(),
                           if (!_isLoadingAuthentication)
