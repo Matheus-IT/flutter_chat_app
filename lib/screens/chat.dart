@@ -16,8 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final fm = FirebaseMessaging.instance;
     await fm.requestPermission();
 
-    final token = await fm.getToken(); // device address in which the app is running
-    print(token);
+    fm.subscribeToTopic('chat');
   }
 
   @override
@@ -43,9 +42,11 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: const [
-          Expanded(child: ChatMessages()),
+      body: const Column(
+        children: [
+          Expanded(
+            child: ChatMessages(),
+          ),
           NewMessage(),
         ],
       ),
